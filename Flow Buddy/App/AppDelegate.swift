@@ -59,6 +59,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         captureWindow.isOpaque = false
         captureWindow.isFloatingPanel = true
         
+        // 1. Enable automatic closing on outside clicks
+        captureWindow.hidesOnDeactivate = true
+        
         let contentView = RapidCaptureView()
             .environmentObject(AppState.shared)
             .modelContainer(sharedModelContainer)
@@ -67,12 +70,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         captureWindow.center()
     }
     
+    // 2. Handle the window resigning key status (losing focus)
+    func applicationDidResignActive(_ notification: Notification) {
+         // If the app loses focus (user clicks another app), close the capture window state
+         if AppState.shared.isCaptureInterfaceOpen {
+             AppState.shared.isCaptureInterfaceOpen = false
+         }
+    }
+    
     @objc func toggleCapture() {
         if AppState.shared.isCaptureInterfaceOpen {
             captureWindow.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true) // Forces app to front so you can type
         } else {
             captureWindow.orderOut(nil)
+        }
+    }
+    
+    // 3. Specific delegate method for the window itself
+    func windowDidResignKey(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow, window == captureWindow else { return }
+        
+        // When capture window loses focus, close it
+        // We must wrap this in a check to ensure we aren't just switching focus within the app
+        if AppState.shared.isCaptureInterfaceOpen {
+             AppState.shared.isCaptureInterfaceOpen = false
         }
     }
 }

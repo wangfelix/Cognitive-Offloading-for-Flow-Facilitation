@@ -34,6 +34,14 @@ struct RapidCaptureView: View {
                 isFocused = true
             }
         }
+        // Listen for Escape key
+        .background(
+            Button("") {
+                appState.isCaptureInterfaceOpen = false
+            }
+            .keyboardShortcut(.escape, modifiers: [])
+            .hidden()
+        )
     }
     
     func submitThought() {
