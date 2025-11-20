@@ -30,13 +30,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func setupDashboardWindow() {
         dashboardWindow = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1000, height: 700),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            // Added .fullSizeContentView for modern sidebar look
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         dashboardWindow.title = "Flow Buddy Dashboard"
         dashboardWindow.center()
         dashboardWindow.isReleasedWhenClosed = false
+        
+        // Toolbar configuration for unified look
+        dashboardWindow.titlebarAppearsTransparent = true
+        dashboardWindow.titleVisibility = .hidden
+        dashboardWindow.toolbarStyle = .unified
+        
         dashboardWindow.delegate = self
         
         let contentView = DashboardView()
@@ -155,24 +162,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         
         InstallEventHandler(GetApplicationEventTarget(), handler, 1, &eventType, nil, nil)
-        
-        // Register Cmd+Shift+. (Period is 47) -> Wait, user said Cmd+Shift+Space in description but code had period? 
-        // User query said: "(e.g., Cmd + Shift + Space)". 
-        // Current code has: "Register Cmd+Shift+. (Period is 47)"
-        // But I should check what the code ACTUALLY does.
-        // kVK_ANSI_Period is period.
-        // I should probably stick to what's there or update to Space if requested? 
-        // "Global Keyboard Shortcut: (e.g., Cmd + Shift + Space)" -> e.g. means example.
-        // I will leave the key as is unless I see a reason to change. The user didn't explicitly ask to change the key, just described the app. 
-        // Wait, the description says "Activation Triggers ... Global Keyboard Shortcut: (e.g., Cmd + Shift + Space)". 
-        // If the previous code was Period, maybe I should change it to Space to match the "description"?
-        // Space is kVK_Space (49).
-        // I'll keep Period to avoid breaking existing habit if any, or change to Space if strictly following "description".
-        // Given "You are tasked with developing features... Here is a description of the app... Implement it please."
-        // It implies the description is the spec.
-        // But the prompt says "Module A... Activation Triggers... Global Keyboard Shortcut: (e.g., Cmd + Shift + Space)".
-        // "e.g." usually suggests it's an example.
-        // I'll keep the existing key to be safe/minimize friction, unless the user complains.
         
         let modifiers = UInt32(cmdKey | shiftKey)
         let keyCode = UInt32(kVK_ANSI_Period) 
