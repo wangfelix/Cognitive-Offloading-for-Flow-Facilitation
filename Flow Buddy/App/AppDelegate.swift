@@ -47,8 +47,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setupCaptureWindow() {
         // Capture Window uses CUSTOM FloatingPanel to allow typing
         captureWindow = FloatingPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 650, height: 100),
-            styleMask: [.borderless, .nonactivatingPanel], // .nonactivatingPanel keeps it floating but subclass overrides key status
+            contentRect: NSRect(x: 0, y: 0, width: 750, height: 200),
+            styleMask: [.borderless, .nonactivatingPanel, .hudWindow], // .nonactivatingPanel keeps it floating but subclass overrides key status
             backing: .buffered,
             defer: false
         )
@@ -58,6 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         captureWindow.backgroundColor = .clear
         captureWindow.isOpaque = false
         captureWindow.isFloatingPanel = true
+        captureWindow.hasShadow = false
         
         // 1. Enable automatic closing on outside clicks
         captureWindow.hidesOnDeactivate = true

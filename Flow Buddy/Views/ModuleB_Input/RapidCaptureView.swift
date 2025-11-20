@@ -5,7 +5,7 @@ struct RapidCaptureView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.modelContext) private var modelContext
     @State private var inputText: String = ""
-    @FocusState private var isFocused: Bool // Auto-focus the text field
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         HStack(spacing: 12) {
@@ -26,7 +26,8 @@ struct RapidCaptureView: View {
             .foregroundColor(.secondary)
         }
         .padding(20)
-        .glassEffect()
+        .glassEffect(in: Capsule())
+        .shadow(radius: 10)
         .frame(width: 600)
         .onAppear {
             // Force focus when window appears
@@ -42,6 +43,7 @@ struct RapidCaptureView: View {
             .keyboardShortcut(.escape, modifiers: [])
             .hidden()
         )
+        .padding(35)
     }
     
     func submitThought() {

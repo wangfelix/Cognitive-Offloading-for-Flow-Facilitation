@@ -12,7 +12,7 @@ struct BubbleView: View {
         HStack(alignment: .bottom) {
             // Intervention Box (Module D)
             if let distraction = appState.currentDistraction {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.orange)
@@ -23,19 +23,20 @@ struct BubbleView: View {
                     Text("Are you using \(distraction)?")
                         .font(.subheadline)
                         .fixedSize(horizontal: false, vertical: true) // Prevents text cutoff
+                        .padding(.bottom, 6)
                     
                     HStack {
-                        Button("It's Work") { appState.resolveDistraction(isTaskRelated: true) }
+                        Button("It's Work") { appState.resolveDistraction(isTaskRelated: true) }.controlSize(.large)
                         Button("Research for Me") {
                             let task = ThoughtItem(text: "Agent: Research \(distraction)", category: .research)
                             modelContext.insert(task)
                             appState.resolveDistraction(isTaskRelated: false)
-                        }
+                        }.controlSize(.large)
                     }
                 }
                 .padding()
                 //.background(Material.thick) // Better contrast
-                .glassEffect(in: RoundedRectangle(cornerRadius: 16))
+                .glassEffect(in: RoundedRectangle(cornerRadius: 20))
                 .shadow(radius: 10)
                 .frame(width: 250) // Give it enough width
                 .transition(.move(edge: .trailing).combined(with: .opacity))
