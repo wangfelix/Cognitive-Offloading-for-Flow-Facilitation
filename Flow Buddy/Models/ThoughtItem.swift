@@ -13,11 +13,14 @@ class ThoughtItem {
         set { categoryRaw = newValue.rawValue }
     }
     
-    init(text: String, category: ThoughtCategory, timestamp: Date = Date()) {
+    var hasBeenOpened: Bool = false
+    
+    init(text: String, category: ThoughtCategory, timestamp: Date = Date(), hasBeenOpened: Bool = false) {
         self.id = UUID()
         self.text = text
         self.categoryRaw = category.rawValue
         self.timestamp = timestamp
+        self.hasBeenOpened = hasBeenOpened
     }
 }
 

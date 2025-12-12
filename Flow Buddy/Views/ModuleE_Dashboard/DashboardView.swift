@@ -126,5 +126,10 @@ struct DashboardView: View {
                  }
             }
         }
+        .onChange(of: selection) { _, newSelection in
+            if case .thought(let item) = newSelection {
+                item.hasBeenOpened = true
+            }
+        }
     }
 }
