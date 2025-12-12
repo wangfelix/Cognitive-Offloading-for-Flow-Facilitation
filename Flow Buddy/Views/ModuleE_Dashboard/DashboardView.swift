@@ -63,7 +63,7 @@ struct DashboardView: View {
                 }
                 .listStyle(.sidebar)
                 .frame(minWidth: 250)
-                .navigationTitle("Flow Buddy")
+                .navigationTitle("")
                 .toolbar {
                     ToolbarItem {
                         Button(action: { appState.isCaptureInterfaceOpen.toggle() }) {

@@ -43,7 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         
         // Toolbar configuration for unified look
         dashboardWindow.titlebarAppearsTransparent = true
-        dashboardWindow.titleVisibility = .hidden
+
         dashboardWindow.toolbarStyle = .unified
         
         dashboardWindow.delegate = self
