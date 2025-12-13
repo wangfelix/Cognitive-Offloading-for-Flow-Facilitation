@@ -11,7 +11,7 @@ class ThoughtItem {
     var timestamp: Date
     
     var category: ThoughtCategory {
-        get { ThoughtCategory(rawValue: categoryRaw) ?? .research }
+        get { ThoughtCategory(rawValue: categoryRaw) ?? .auto }
         set { categoryRaw = newValue.rawValue }
     }
     

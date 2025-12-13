@@ -7,28 +7,62 @@ struct RapidCaptureView: View {
     @State private var inputText: String = ""
     @FocusState private var isFocused: Bool
     
+    @State private var selectedCategory: ThoughtCategory = .auto
+    
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "pencil.and.scribble")
-                .font(.title2)
+        VStack(alignment: .trailing, spacing: 12) {
+            // Main Input Capsule
+            HStack(spacing: 12) {
+                Image(systemName: "pencil.and.scribble")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                
+                TextField("Offload thought...", text: $inputText)
+                    .textFieldStyle(.plain)
+                    .font(.title2)
+                    .focused($isFocused) // Binds focus to state
+                    .onSubmit { submitThought() }
+                
+                Button(action: { }) {
+                    Image(systemName: "mic.fill")
+                }
+                .buttonStyle(.plain)
                 .foregroundColor(.secondary)
+            }
+            .padding(20)
+            .glassEffect(in: Capsule())
+            .shadow(radius: 10)
+            .frame(width: 600)
             
-            TextField("Offload thought...", text: $inputText)
-                .textFieldStyle(.plain)
-                .font(.title2)
-                .focused($isFocused) // Binds focus to state
-                .onSubmit { submitThought() }
-            
-            Button(action: { }) {
-                Image(systemName: "mic.fill")
+            // Category Dropdown Pill
+            Menu {
+                ForEach(ThoughtCategory.allCases, id: \.self) { category in
+                    Button {
+                        selectedCategory = category
+                    } label: {
+                        if selectedCategory == category {
+                            Label(category.rawValue, systemImage: "checkmark")
+                        } else {
+                            Text(category.rawValue)
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text(selectedCategory.rawValue)
+                        .fontWeight(.medium)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .glassEffect(in: Capsule())
+                .shadow(radius: 5)
+                .contentShape(Capsule())
             }
             .buttonStyle(.plain)
-            .foregroundColor(.secondary)
+            .frame(width: 140, alignment: .trailing)
         }
-        .padding(20)
-        .glassEffect(in: Capsule())
-        .shadow(radius: 10)
-        .frame(width: 600)
         .onAppear {
             // Force focus when window appears
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -40,6 +74,7 @@ struct RapidCaptureView: View {
             Button("") {
                 appState.isCaptureInterfaceOpen = false
                 inputText = ""
+                selectedCategory = .auto
             }
             .keyboardShortcut(.escape, modifiers: [])
             .hidden()
@@ -49,20 +84,51 @@ struct RapidCaptureView: View {
     
     func submitThought() {
         guard !inputText.isEmpty else { return }
-        let category: ThoughtCategory = inputText.lowercased().contains("remind") ? .reminder : .research
-        let newItem = ThoughtItem(text: inputText, category: category)
+        
+        // 1. Determine final category for the item
+        let finalCategory: ThoughtCategory
+        
+        switch selectedCategory {
+        case .auto:
+            // Same logic as before: simple keyword check for "remind"
+            finalCategory = inputText.lowercased().contains("remind") ? .reminder : .auto
+        default:
+            finalCategory = selectedCategory
+        }
+        
+        let newItem = ThoughtItem(text: inputText, category: finalCategory)
         modelContext.insert(newItem)
         
+        // 2. Determine if we should run background research
+        // Requirement: appState.isBackgroundResearchEnabled MUST be true
         if appState.isBackgroundResearchEnabled {
-            let service = BackgroundResearchService()
-            let query = inputText
+            var shouldResearch = false
             
-            Task {
-                do {
-                    let report = try await service.performResearch(for: query)
-                    newItem.inferenceReport = report
-                } catch {
-                    print("Error performing background research: \(error)")
+            switch selectedCategory {
+            case .research:
+                shouldResearch = true
+            case .auto:
+                // Only research if it was NOT detected as a reminder
+                // If it stayed .auto (or implicitly research), then yes.
+                // If existing auto-logic made it .reminder, then no.
+                if finalCategory != .reminder {
+                    shouldResearch = true
+                }
+            case .reminder:
+                shouldResearch = false
+            }
+            
+            if shouldResearch {
+                let service = BackgroundResearchService()
+                let query = inputText
+                
+                Task {
+                    do {
+                        let report = try await service.performResearch(for: query)
+                        newItem.inferenceReport = report
+                    } catch {
+                        print("Error performing background research: \(error)")
+                    }
                 }
             }
         }
