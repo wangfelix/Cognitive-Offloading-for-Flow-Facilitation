@@ -1,12 +1,7 @@
 import SwiftData
 import Foundation
 
-struct InferenceResponse: Codable {
-    let topic: String
-    let summary: String
-    let details: String
-    let actionItems: [String]
-}
+
 
 @Model
 class ThoughtItem {

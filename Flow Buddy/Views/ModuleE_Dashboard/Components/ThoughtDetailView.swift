@@ -4,13 +4,7 @@ import LaTeXSwiftUI
 struct ThoughtDetailView: View {
     let item: ThoughtItem
     @State private var isAnalyzing = false
-    @State private var analysisResult: InferenceResponse?
     private let researchService = BackgroundResearchService()
-    
-    init(item: ThoughtItem) {
-        self.item = item
-        _analysisResult = State(initialValue: item.inferenceReport)
-    }
     
     var body: some View {
         ScrollView {
@@ -39,7 +33,7 @@ struct ThoughtDetailView: View {
                     Text("Actions")
                         .font(.headline)
                     
-                    if analysisResult == nil {
+                    if item.inferenceReport == nil {
                         Button("Generate Report") {
                             Task {
                                 isAnalyzing = true
@@ -49,7 +43,6 @@ struct ThoughtDetailView: View {
                                     
                                     // Save to model
                                     item.inferenceReport = result
-                                    analysisResult = result
                                 } catch {
                                     print("Research Failed: \(error)")
                                     // Handle error gracefully
@@ -67,7 +60,7 @@ struct ThoughtDetailView: View {
                         .padding()
                 }
                 
-                if let result = analysisResult {
+                if let result = item.inferenceReport {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Research Report: \(result.topic)")
                             .font(.headline)
@@ -83,6 +76,7 @@ struct ThoughtDetailView: View {
                             .fontWeight(.bold)
                         
                         LaTeX(result.details)
+                            .id(result.details)
                         
                         if !result.actionItems.isEmpty {
                             Divider()
@@ -112,5 +106,10 @@ struct ThoughtDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         
+        .onChange(of: item.id) {
+            isAnalyzing = false
+        }
+        
     }
+    
 }
