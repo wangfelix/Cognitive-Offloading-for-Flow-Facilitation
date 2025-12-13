@@ -27,6 +27,12 @@ class AppState: ObservableObject {
         }
     }
     
+    @Published var isBackgroundResearchEnabled: Bool = UserDefaults.standard.bool(forKey: "isBackgroundResearchEnabled") {
+        didSet {
+            UserDefaults.standard.set(isBackgroundResearchEnabled, forKey: "isBackgroundResearchEnabled")
+        }
+    }
+    
     @Published var currentDistraction: String? = nil
     
     private var distractionTimer: Timer?

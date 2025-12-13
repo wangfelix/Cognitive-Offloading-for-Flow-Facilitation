@@ -47,7 +47,7 @@ class BackgroundResearchService {
     
     private let baseURL = URL(string: "https://api.helmholtz-blablador.fz-juelich.de/v1/chat/completions")!
     // TODO: Replace with actual token or secure storage retrieval
-    private let apiToken = "glpat-rdSe4FEy1JmemU9jIf66s286MQp1Om56eQk.01.0z1oyj2hk"
+    private let apiToken = "YOUR_BLABLADOR_KEY"
 
     func performResearch(for query: String) async throws -> InferenceResponse {
         

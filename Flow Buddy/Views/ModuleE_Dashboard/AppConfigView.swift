@@ -15,6 +15,13 @@ struct AppConfigView: View {
             }
             
             Section {
+                Toggle("Automatic Background Research", isOn: $appState.isBackgroundResearchEnabled)
+                    .toggleStyle(SwitchToggleStyle(tint: .blue))
+            } footer: {
+                Text("When enabled, Flow Buddy will automatically generate a research report for every new thought you capture.")
+            }
+            
+            Section {
                 Slider(
                     value: intervalSliderBinding,
                     in: 0...Double(availableIntervals.count - 1),

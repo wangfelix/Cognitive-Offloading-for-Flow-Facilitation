@@ -50,7 +50,23 @@ struct RapidCaptureView: View {
     func submitThought() {
         guard !inputText.isEmpty else { return }
         let category: ThoughtCategory = inputText.lowercased().contains("remind") ? .reminder : .research
-        modelContext.insert(ThoughtItem(text: inputText, category: category))
+        let newItem = ThoughtItem(text: inputText, category: category)
+        modelContext.insert(newItem)
+        
+        if appState.isBackgroundResearchEnabled {
+            let service = BackgroundResearchService()
+            let query = inputText
+            
+            Task {
+                do {
+                    let report = try await service.performResearch(for: query)
+                    newItem.inferenceReport = report
+                } catch {
+                    print("Error performing background research: \(error)")
+                }
+            }
+        }
+        
         inputText = ""
         appState.isCaptureInterfaceOpen = false
     }
