@@ -47,7 +47,7 @@ class BackgroundResearchService {
     
     private let baseURL = URL(string: "https://api.helmholtz-blablador.fz-juelich.de/v1/chat/completions")!
     // TODO: Replace with actual token or secure storage retrieval
-    private let apiToken = "YOUR_BLABLADOR_KEY"
+    private let apiToken = "glpat-rdSe4FEy1JmemU9jIf66s286MQp1Om56eQk.01.0z1oyj2hk"
 
     func performResearch(for query: String) async throws -> InferenceResponse {
         
@@ -79,6 +79,9 @@ class BackgroundResearchService {
             }
             2. The actionItems should only be links to relevant websites, not full sentences.
             3. Add up to 5 relevant action items.
+            
+            **CRITICAL - JSON Escaping Rules:**
+            Since your output is JSON, you MUST properly escape all backslashes.
             """
         
         let messages = [

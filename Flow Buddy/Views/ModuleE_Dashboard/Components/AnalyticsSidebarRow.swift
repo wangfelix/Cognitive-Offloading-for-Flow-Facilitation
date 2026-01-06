@@ -5,10 +5,13 @@ struct AnalyticsSidebarRow: View {
     
     var body: some View {
         HStack {
+            Image(systemName: "house")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(appState.isSessionActive ? .green : .secondary)
+            
             VStack(alignment: .leading) {
-                Text("Session").font(.caption)
-                Text(appState.isSessionActive ? "Active" : "Overview")
-                    .font(.title2)
+                Text(appState.isSessionActive ? "Session Active" : "Session Overview")
+                    .font(.title3)
                     .bold()
                     .foregroundColor(appState.isSessionActive ? .green : .secondary)
             }

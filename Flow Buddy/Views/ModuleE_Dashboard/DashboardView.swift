@@ -179,6 +179,7 @@ struct DashboardView: View {
                             AnalyticsSidebarRow(appState: appState)
                         }
                     }
+                    .padding(.vertical, 4)
                     
                     Section("Inbox") {
                         ForEach(thoughts) { item in
@@ -187,6 +188,7 @@ struct DashboardView: View {
                             }
                         }
                     }
+                    .padding(.vertical, 4)
                 }
                 .listStyle(.sidebar)
                 .frame(minWidth: 250)

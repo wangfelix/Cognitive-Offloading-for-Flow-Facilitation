@@ -29,29 +29,31 @@ struct ThoughtDetailView: View {
                 
                 Divider()
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Actions")
-                        .font(.headline)
-                    
-                    if item.inferenceReport == nil {
-                        Button("Generate Report") {
-                            Task {
-                                isAnalyzing = true
-                                do {
-                                    let result = try await researchService.performResearch(for: item.text)
-                                    print("Research Result: \(result)")
-                                    
-                                    // Save to model
-                                    item.inferenceReport = result
-                                } catch {
-                                    print("Research Failed: \(error)")
-                                    // Handle error gracefully
+                if item.category != .reminder {
+                    VStack(alignment: .leading, spacing: 8) {
+                        if item.inferenceReport == nil {
+                            Text("Actions")
+                                .font(.headline)
+                            
+                            Button("Generate Report") {
+                                Task {
+                                    isAnalyzing = true
+                                    do {
+                                        let result = try await researchService.performResearch(for: item.text)
+                                        print("Research Result: \(result)")
+                                        
+                                        // Save to model
+                                        item.inferenceReport = result
+                                    } catch {
+                                        print("Research Failed: \(error)")
+                                        // Handle error gracefully
+                                    }
+                                    isAnalyzing = false
                                 }
-                                isAnalyzing = false
                             }
+                            .disabled(isAnalyzing)
+                            .buttonStyle(.bordered)
                         }
-                        .disabled(isAnalyzing)
-                        .buttonStyle(.bordered)
                     }
                 }
                 

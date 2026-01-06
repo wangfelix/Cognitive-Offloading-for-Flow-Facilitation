@@ -9,6 +9,10 @@ struct AnalyticsDetailView: View {
     @State private var sessionTimer: Timer? = nil
     @State private var elapsedTime: TimeInterval = 0
     
+    private var reminderItems: [ThoughtItem] {
+        thoughts.filter { $0.category == .reminder }
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 30) {
@@ -167,6 +171,49 @@ struct AnalyticsDetailView: View {
                 .cornerRadius(12)
             }
             .padding(.horizontal)
+            
+            // Reminders Section
+            if !reminderItems.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "bell.fill")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                        Text("Reminders")
+                            .font(.title2)
+                            .bold()
+                        Spacer()
+                        Text("\(reminderItems.count)")
+                            .font(.title)
+                            .bold()
+                            .foregroundColor(.orange)
+                    }
+                    
+                    ForEach(reminderItems, id: \.id) { reminder in
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "circle.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(.orange)
+                                .padding(.top, 6)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(reminder.text)
+                                    .font(.body)
+                                    .lineLimit(2)
+                                Text(reminder.timestamp.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .cornerRadius(12)
+                .padding(.horizontal)
+            }
             
             VStack(spacing: 16) {
                 Text("The session has ended. You can now browse your offloaded tasks and take screenshots of them, if you want.")
