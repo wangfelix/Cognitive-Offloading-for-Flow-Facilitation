@@ -43,7 +43,7 @@ class AppState: ObservableObject {
     private let analysisService = ScreenAnalysisService()
     private var isAnalyzing = false
     
-    static let shared = AppState() // Singleton access
+    static let shared = AppState()
     
     init() {
         // Start periodic context check based on stored interval

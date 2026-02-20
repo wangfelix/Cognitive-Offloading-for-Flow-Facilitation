@@ -102,56 +102,65 @@ struct RapidCaptureView: View {
     func submitThought() {
         guard !inputText.isEmpty else { return }
         
-        // 1. Determine final category for the item
-        let finalCategory: ThoughtCategory
+        let textToProcess = inputText
+        let categoryToProcess = selectedCategory
         
-        switch selectedCategory {
-        case .auto:
-            // Same logic as before: simple keyword check for "remind"
-            finalCategory = inputText.lowercased().contains("remind") ? .reminder : .auto
-        default:
-            finalCategory = selectedCategory
-        }
+        // Clear UI immediately
+        inputText = ""
+        appState.isCaptureInterfaceOpen = false
         
-        let newItem = ThoughtItem(text: inputText, category: finalCategory)
-        modelContext.insert(newItem)
-        
-        // 2. Determine if we should run background research
-        // Requirement: appState.isBackgroundResearchEnabled MUST be true
-        if appState.isBackgroundResearchEnabled {
-            var shouldResearch = false
+        Task {
+            // 1. Determine final category for the item
+            let finalCategory: ThoughtCategory
             
-            switch selectedCategory {
-            case .research:
-                shouldResearch = true
+            switch categoryToProcess {
             case .auto:
-                // Only research if it was NOT detected as a reminder
-                // If it stayed .auto (or implicitly research), then yes.
-                // If existing auto-logic made it .reminder, then no.
-                if finalCategory != .reminder {
-                    shouldResearch = true
+                // Use LLM-powered detection to classify reminder vs research
+                do {
+                    let isReminder = try await ReminderDetectionService().classifyAsReminder(text: textToProcess)
+                    finalCategory = isReminder ? .reminder : .research
+                } catch {
+                    print("Error classifying thought: \(error). Falling back to keyword check.")
+                    // Fallback to simple keyword check if LLM fails
+                    finalCategory = textToProcess.lowercased().contains("remind") ? .reminder : .research
                 }
-            case .reminder:
-                shouldResearch = false
+            default:
+                finalCategory = categoryToProcess
             }
             
-            if shouldResearch {
-                let service = BackgroundResearchService()
-                let query = inputText
+            await MainActor.run {
+                let newItem = ThoughtItem(text: textToProcess, category: finalCategory)
+                modelContext.insert(newItem)
                 
-                Task {
-                    do {
-                        let report = try await service.performResearch(for: query)
-                        newItem.inferenceReport = report
-                    } catch {
-                        print("Error performing background research: \(error)")
+                // 2. Determine if we should run background research
+                if appState.isBackgroundResearchEnabled {
+                    var shouldResearch = false
+                    
+                    switch categoryToProcess {
+                    case .research:
+                        shouldResearch = true
+                    case .auto:
+                        // Only research if classified as research (not reminder)
+                        shouldResearch = (finalCategory == .research)
+                    case .reminder:
+                        shouldResearch = false
+                    }
+                    
+                    if shouldResearch {
+                        let service = BackgroundResearchService()
+                        let query = textToProcess
+                        
+                        Task {
+                            do {
+                                let report = try await service.performResearch(for: query)
+                                newItem.inferenceReport = report
+                            } catch {
+                                print("Error performing background research: \(error)")
+                            }
+                        }
                     }
                 }
             }
         }
-        
-        inputText = ""
-        appState.isCaptureInterfaceOpen = false
     }
 }
-

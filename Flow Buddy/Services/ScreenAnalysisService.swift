@@ -66,10 +66,10 @@ class ScreenAnalysisService {
                 ]
             ],
             "stream": false,
-            "format": "json", // Enforce JSON mode
+            "format": "json",
             "options": [
                 "temperature": 0.0, // Deterministic
-                "num_ctx": 4096,     // Limit context to save RAM
+                "num_ctx": 4096,
                 "num_predict": 256
             ]
         ]
@@ -91,7 +91,7 @@ class ScreenAnalysisService {
              throw NSError(domain: "ScreenAnalysisService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Ollama request failed"])
         }
         
-        // 4. Parse Response
+        // Parse Response
         // let fullREsponse = try JSONDecoder().decode(from: data)
         let ollamaResponse = try JSONDecoder().decode(OllamaResponse.self, from: data)
         let content = ollamaResponse.message.content
